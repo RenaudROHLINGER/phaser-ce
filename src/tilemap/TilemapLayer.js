@@ -877,7 +877,6 @@ Phaser.TilemapLayer.prototype.renderRegion = function (scrollX, scrollY, left, t
             bottom = Math.min(height - 1, bottom);
         }
     }
-   
     // top-left pixel of top-left cell
     var baseX = (left * tw) - scrollX;
     var baseY = (top * th) - scrollY;

@@ -37,13 +37,14 @@ Phaser.TilemapParser = {
     * @param {number} [height=10] - The height of the map in tiles. If this map is created from Tiled or CSV data you don't need to specify this.
     * @return {object} The parsed map object.
     */
-    parse: function (game, key, tileWidth, tileHeight, width, height) {
+    parse: function (game, key, tileWidth, tileHeight, width, height, scale) {
 
         if (tileWidth === undefined) { tileWidth = 32; }
         if (tileHeight === undefined) { tileHeight = 32; }
         if (width === undefined) { width = 10; }
         if (height === undefined) { height = 10; }
-
+        if (scale === undefined) { scale = game.scale_r; }
+        console.log(scale)
         if (key === undefined)
         {
             return this.getEmptyData();
@@ -51,7 +52,7 @@ Phaser.TilemapParser = {
 
         if (key === null)
         {
-            return this.getEmptyData(tileWidth, tileHeight, width, height);
+            return this.getEmptyData(tileWidth, tileHeight, width, height, scale);
         }
 
         var map = game.cache.getTilemapData(key);
@@ -64,7 +65,7 @@ Phaser.TilemapParser = {
             }
             else if (!map.format || map.format === Phaser.Tilemap.TILED_JSON)
             {
-                return this.parseTiledJSON(map.data);
+                return this.parseTiledJSON(map.data, scale);
             }
         }
         else
@@ -138,7 +139,7 @@ Phaser.TilemapParser = {
     * @method Phaser.TilemapParser.getEmptyData
     * @return {object} Generated map data.
     */
-    getEmptyData: function (tileWidth, tileHeight, width, height) {
+    getEmptyData: function (tileWidth, tileHeight, width, height, scale) {
 
         return {
             width: (width !== undefined && width !== null) ? width : 0,
@@ -148,6 +149,7 @@ Phaser.TilemapParser = {
             orientation: 'orthogonal',
             version: '1',
             properties: {},
+            scale: 1,
             widthInPixels: 0,
             heightInPixels: 0,
             layers: [
@@ -203,7 +205,7 @@ Phaser.TilemapParser = {
     * @param {object} [relativePosition={x: 0, y: 0}] - Coordinates the object group's position is relative to.
     * @return {object} A object literal containing the objectsCollection and collisionCollection
     */
-    parseObjectGroup: function(objectGroup, objectsCollection, collisionCollection, nameKey, relativePosition) {
+    parseObjectGroup: function(objectGroup, objectsCollection, collisionCollection, nameKey, relativePosition, scale) {
 
         var nameKey = nameKey || objectGroup.name;
         var relativePosition = relativePosition || {x: 0, y: 0};
@@ -233,14 +235,13 @@ Phaser.TilemapParser = {
                     gid: o.gid,
                     name: o.name,
                     type: o.type || '',
-                    x: o.x + relativePosition.x,
-                    y: o.y + relativePosition.y,
-                    width: o.width,
-                    height: o.height,
+                    x: (o.x * scale) + relativePosition.x,
+                    y: (o.y * scale) + relativePosition.y,
+                    width: o.width * scale,
+                    height: o.height * scale,
                     visible: o.visible,
                     properties: o.properties
                 };
-
                 if (o.rotation)
                 {
                     object.rotation = o.rotation;
@@ -253,10 +254,10 @@ Phaser.TilemapParser = {
                 var object = {
                     name: o.name,
                     type: o.type,
-                    x: o.x + relativePosition.x,
-                    y: o.y + relativePosition.y,
-                    width: o.width,
-                    height: o.height,
+                    x: (o.x * scale) + relativePosition.x,
+                    y: (o.y * scale) + relativePosition.y,
+                    width: o.width * scale,
+                    height: o.height * scale,
                     visible: o.visible,
                     properties: o.properties
                 };
@@ -271,7 +272,7 @@ Phaser.TilemapParser = {
                 //  Parse the polyline into an array
                 for (var p = 0; p < o.polyline.length; p++)
                 {
-                    object.polyline.push([o.polyline[p].x, o.polyline[p].y]);
+                    object.polyline.push([o.polyline[p].x * scale, o.polyline[p].y * scale]);
                 }
 
                 collisionCollection[nameKey].push(object);
@@ -281,7 +282,8 @@ Phaser.TilemapParser = {
             else if (o.polygon)
             {
                 var object = slice(o, ['name', 'type', 'x', 'y', 'visible', 'rotation', 'properties']);
-
+                object.x *= scale
+                object.y *= scale
                 object.x += relativePosition.x;
                 object.y += relativePosition.y;
 
@@ -290,7 +292,7 @@ Phaser.TilemapParser = {
 
                 for (var p = 0; p < o.polygon.length; p++)
                 {
-                    object.polygon.push([o.polygon[p].x, o.polygon[p].y]);
+                    object.polygon.push([o.polygon[p].x * scale, o.polygon[p].y * scale]);
                 }
 
                 collisionCollection[nameKey].push(object);
@@ -300,6 +302,10 @@ Phaser.TilemapParser = {
             else if (o.ellipse)
             {
                 var object = slice(o, ['name', 'type', 'ellipse', 'x', 'y', 'width', 'height', 'visible', 'rotation', 'properties']);
+                object.width *= scale
+                object.height *= scale
+                object.x *= scale
+                object.y *= scale
                 object.x += relativePosition.x;
                 object.y += relativePosition.y;
 
@@ -310,6 +316,10 @@ Phaser.TilemapParser = {
             else
             {
                 var object = slice(o, ['name', 'type', 'x', 'y', 'width', 'height', 'visible', 'rotation', 'properties']);
+                object.width *= scale
+                object.height *= scale
+                object.x *= scale
+                object.y *= scale
                 object.x += relativePosition.x;
                 object.y += relativePosition.y;
 
@@ -331,8 +341,8 @@ Phaser.TilemapParser = {
     * @param {object} json - The JSON map data.
     * @return {object} Generated and parsed map data.
     */
-    parseTiledJSON: function (json) {
-
+    parseTiledJSON: function (json, scale) {
+        console.log(scale)
         if (json.orientation !== 'orthogonal')
         {
             console.warn('TilemapParser.parseTiledJSON - Only orthogonal map types are supported in this version of Phaser');
@@ -343,14 +353,14 @@ Phaser.TilemapParser = {
         var map = {
             width: json.width,
             height: json.height,
-            tileWidth: json.tilewidth,
-            tileHeight: json.tileheight,
+            tileWidth: json.tilewidth * scale,
+            tileHeight: json.tileheight * scale,
             orientation: json.orientation,
             format: Phaser.Tilemap.TILED_JSON,
             version: json.version,
             properties: json.properties,
-            widthInPixels: json.width * json.tilewidth,
-            heightInPixels: json.height * json.tileheight
+            widthInPixels: json.width * (json.tilewidth * scale),
+            heightInPixels: json.height * (json.tileheight * scale)
         };
 
         //  Tile Layers
@@ -399,12 +409,12 @@ Phaser.TilemapParser = {
             var layer = {
 
                 name: curl.name,
-                x: curl.x,
-                y: curl.y,
+                x: curl.x * scale,
+                y: curl.y * scale,
                 width: curl.width,
                 height: curl.height,
-                widthInPixels: curl.width * json.tilewidth,
-                heightInPixels: curl.height * json.tileheight,
+                widthInPixels: curl.width * (json.tilewidth * scale),
+                heightInPixels: curl.height * (json.tileheight * scale),
                 alpha: curl.opacity,
                 offsetX: curl.offsetx,
                 offsetY: curl.offsety,
@@ -502,7 +512,7 @@ Phaser.TilemapParser = {
                 //  index, x, y, width, height
                 if (gid > 0)
                 {
-                    var tile = new Phaser.Tile(layer, gid, x, output.length, json.tilewidth, json.tileheight);
+                    var tile = new Phaser.Tile(layer, gid, x, output.length, json.tilewidth * scale, json.tileheight * scale);
 
                     tile.rotation = rotation;
                     tile.flipped = flipped;
@@ -523,7 +533,7 @@ Phaser.TilemapParser = {
                     }
                     else
                     {
-                        row.push(new Phaser.Tile(layer, -1, x, output.length, json.tilewidth, json.tileheight));
+                        row.push(new Phaser.Tile(layer, -1, x, output.length, json.tilewidth * scale, json.tileheight * scale));
                     }
                 }
 
@@ -560,8 +570,8 @@ Phaser.TilemapParser = {
 
                 name: curi.name,
                 image: curi.image,
-                x: curi.x,
-                y: curi.y,
+                x: curi.x * scale,
+                y: curi.y * scale,
                 alpha: curi.opacity,
                 visible: curi.visible,
                 properties: {}
@@ -596,7 +606,7 @@ Phaser.TilemapParser = {
             }
             else if (set.image)
             {
-                var newSet = new Phaser.Tileset(set.name, set.firstgid, set.tilewidth, set.tileheight, set.margin, set.spacing, set.properties);
+                var newSet = new Phaser.Tileset(set.name, set.firstgid, set.tilewidth * scale, set.tileheight * scale, set.margin * scale, set.spacing * scale, set.properties);
 
                 if (set.tileproperties)
                 {
@@ -605,13 +615,13 @@ Phaser.TilemapParser = {
 
                 // For a normal sliced tileset the row/count/size information is computed when updated.
                 // This is done (again) after the image is set.
-                newSet.updateTileData(set.imagewidth, set.imageheight);
+                newSet.updateTileData(set.imagewidth * scale, set.imageheight * scale);
 
                 tilesets.push(newSet);
             }
             else if (set.tiles)
             {
-                var newCollection = new Phaser.ImageCollection(set.name, set.firstgid, set.tilewidth, set.tileheight, set.margin, set.spacing, set.properties);
+                var newCollection = new Phaser.ImageCollection(set.name, set.firstgid, set.tilewidth, set.tileheight, set.margin * scale, set.spacing * scale, set.properties);
 
                 for (var ti in set.tiles)
                 {
@@ -669,7 +679,7 @@ Phaser.TilemapParser = {
             }
 
             var objectGroup = json.layers[i];
-            this.parseObjectGroup(objectGroup, objects, collision);
+            this.parseObjectGroup(objectGroup, objects, collision, null, null, scale);
         }
 
         map.objects = objects;
@@ -776,7 +786,8 @@ Phaser.TilemapParser = {
                             {
                                 x: tile.worldX + objectGroup.x,
                                 y: tile.worldY + objectGroup.y
-                            });
+                            },
+                            scale);
                     }
 
                 }

@@ -212,7 +212,6 @@ Phaser.Tileset.prototype = {
     * @param {integer} imageHeight - The (expected) height of the image to slice.
     */
     updateTileData: function (imageWidth, imageHeight) {
-
         // May be fractional values
         var rowCount = (imageHeight - this.tileMargin * 2 + this.tileSpacing) / (this.tileHeight + this.tileSpacing);
         var colCount = (imageWidth - this.tileMargin * 2 + this.tileSpacing) / (this.tileWidth + this.tileSpacing);

@@ -25,7 +25,7 @@
 * @param {number} [width=10] - The width of the map in tiles. If this map is created from Tiled or CSV data you don't need to specify this.
 * @param {number} [height=10] - The height of the map in tiles. If this map is created from Tiled or CSV data you don't need to specify this.
 */
-Phaser.Tilemap = function (game, key, tileWidth, tileHeight, width, height) {
+Phaser.Tilemap = function (game, key, tileWidth, tileHeight, width, height, scale) {
 
     /**
     * @property {Phaser.Game} game - A reference to the currently running Game.
@@ -36,8 +36,7 @@ Phaser.Tilemap = function (game, key, tileWidth, tileHeight, width, height) {
     * @property {string} key - The key of this map data in the Phaser.Cache.
     */
     this.key = key;
-
-    var data = Phaser.TilemapParser.parse(this.game, key, tileWidth, tileHeight, width, height);
+    var data = Phaser.TilemapParser.parse(this.game, key, tileWidth, tileHeight, width, height, scale);
 
     if (data === null)
     {
@@ -219,10 +218,8 @@ Phaser.Tilemap.prototype = {
     * @param {Phaser.Group} [group] - Optional Group to add the layer to. If not specified it will be added to the World group.
     * @return {Phaser.TilemapLayer} The TilemapLayer object. This is an extension of Phaser.Image and can be moved around the display list accordingly.
     */
-    create: function (name, width, height, tileWidth, tileHeight, group) {
-
+    create: function (name, width, height, tileWidth, tileHeight, group, scale) {
         if (group === undefined) { group = this.game.world; }
-
         this.width = width;
         this.height = height;
 
@@ -267,7 +264,6 @@ Phaser.Tilemap.prototype = {
     * @return {Phaser.Tileset} Returns the Tileset object that was created or updated, or null if it failed.
     */
     addTilesetImage: function (tileset, key, tileWidth, tileHeight, tileMargin, tileSpacing, gid) {
-
         if (tileset === undefined) { return null; }
         if (tileWidth === undefined) { tileWidth = this.tileWidth; }
         if (tileHeight === undefined) { tileHeight = this.tileHeight; }
@@ -275,6 +271,8 @@ Phaser.Tilemap.prototype = {
         if (tileSpacing === undefined) { tileSpacing = 0; }
         if (gid === undefined) { gid = 0; }
 
+        console.log(tileWidth, tileHeight)
+        
         //  In-case we're working from a blank map
         if (tileWidth === 0)
         {

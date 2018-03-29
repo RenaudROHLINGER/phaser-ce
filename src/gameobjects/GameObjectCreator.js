@@ -344,9 +344,9 @@ Phaser.GameObjectCreator.prototype = {
     * @param {number} [width=10] - The width of the map in tiles. If this map is created from Tiled or CSV data you don't need to specify this.
     * @param {number} [height=10] - The height of the map in tiles. If this map is created from Tiled or CSV data you don't need to specify this.
     */
-    tilemap: function (key, tileWidth, tileHeight, width, height) {
+    tilemap: function (key, tileWidth, tileHeight, width, height, scale) {
 
-        return new Phaser.Tilemap(this.game, key, tileWidth, tileHeight, width, height);
+        return new Phaser.Tilemap(this.game, key, tileWidth, tileHeight, width, height, scale);
 
     },
 
