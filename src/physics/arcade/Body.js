@@ -1286,8 +1286,8 @@ Phaser.Physics.Arcade.Body.prototype = {
     * @return {number} The delta value. Positive if the motion was to the right, negative if to the left.
     */
     deltaX: function () {
-
-        return this.position.x - this.prev.x;
+        // camera is roundPx so we need to adjust deltax X to round too
+        return Math.round(this.position.x - this.prev.x);
 
     },
 

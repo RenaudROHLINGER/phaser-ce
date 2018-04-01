@@ -7,7 +7,7 @@
 *
 * Phaser - http://phaser.io
 *
-* v2.10.3 "2018-03-22" - Built: Wed Mar 28 2018 20:03:16
+* v2.10.3 "2018-03-22" - Built: Fri Mar 30 2018 02:56:17
 *
 * By Richard Davey http://www.photonstorm.com @photonstorm
 *
@@ -71165,7 +71165,7 @@ Phaser.Physics.Arcade.Body.prototype = {
     */
     deltaX: function () {
 
-        return this.position.x - this.prev.x;
+        return Math.round(this.position.x - this.prev.x);
 
     },
 
