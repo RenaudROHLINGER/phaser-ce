@@ -85,7 +85,8 @@ Phaser.TilemapParser = {
     * @param {number} [tileHeight=32] - The pixel height of a single map tile. If using CSV data you must specify this. Not required if using Tiled map data.
     * @return {object} Generated map data.
     */
-    parseCSV: function (key, data, tileWidth, tileHeight) {
+    parseCSV: function (key, data, tileWidth, tileHeight)
+    {
 
         var map = this.getEmptyData();
 
@@ -93,7 +94,7 @@ Phaser.TilemapParser = {
         data = data.trim();
 
         var output = [];
-        var rows = data.split("\n");
+        var rows = data.split('\n');
         var height = rows.length;
         var width = 0;
 
@@ -101,7 +102,7 @@ Phaser.TilemapParser = {
         {
             output[y] = [];
 
-            var column = rows[y].split(",");
+            var column = rows[y].split(',');
 
             for (var x = 0; x < column.length; x++)
             {
@@ -179,7 +180,8 @@ Phaser.TilemapParser = {
 
     },
 
-    _slice: function(obj, fields) {
+    _slice: function (obj, fields)
+    {
         var sliced = {};
 
         for (var k in fields)
@@ -278,6 +280,7 @@ Phaser.TilemapParser = {
                 collisionCollection[nameKey].push(object);
                 objectsCollection[nameKey].push(object);
             }
+
             // polygon
             else if (o.polygon)
             {
@@ -298,6 +301,7 @@ Phaser.TilemapParser = {
                 collisionCollection[nameKey].push(object);
                 objectsCollection[nameKey].push(object);
             }
+
             // ellipse
             else if (o.ellipse)
             {
@@ -312,6 +316,7 @@ Phaser.TilemapParser = {
                 collisionCollection[nameKey].push(object);
                 objectsCollection[nameKey].push(object);
             }
+
             // otherwise it's a rectangle
             else
             {
@@ -386,7 +391,7 @@ Phaser.TilemapParser = {
 
                 // Interpret binaryString as an array of bytes representing
                 // little-endian encoded uint32 values.
-                for (var j = 0; j < len; j+=4)
+                for (var j = 0; j < len; j += 4)
                 {
                     bytes[j / 4] = (
                         binaryString.charCodeAt(j) |
@@ -526,6 +531,7 @@ Phaser.TilemapParser = {
                     row.push(tile);
                 }
                 else
+                if (Phaser.TilemapParser.INSERT_NULL)
                 {
                     if (Phaser.TilemapParser.INSERT_NULL)
                     {
@@ -702,7 +708,7 @@ Phaser.TilemapParser = {
             for (var t = set.firstgid; t < set.firstgid + set.total; t++)
             {
                 //  Can add extra properties here as needed
-                map.tiles[t] = [x, y, i];
+                map.tiles[t] = [ x, y, i ];
 
                 x += set.tileWidth + set.tileSpacing;
 
